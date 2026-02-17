@@ -1,0 +1,4 @@
+audi,A4,2012,9000.0,libre
+Peugeut,305,2015,12000.0,fuera_de_servicio
+mercedes,250c,2023,32000.0,vendido
+BMW,X4,2025,80000.0,alquilado

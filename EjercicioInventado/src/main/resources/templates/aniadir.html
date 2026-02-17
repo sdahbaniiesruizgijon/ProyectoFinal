@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Añadir Vehículo - Concesionario</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+    <div class="container" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ADMIN')">
+        <header>
+            <h1>Registrar Nuevo Vehículo</h1>
+            <a th:href="@{/vehiculos}" class="btn-secundario">Volver al Catálogo</a>
+        </header>
+
+        <div class="form-card">
+            <form th:action="@{/vehiculos/aniadir}" th:object="${vehiculo}" method="post">
+                
+                <div class="form-group">
+                    <label for="marca">Marca:</label>
+                    <input type="text" id="marca" th:field="*{marca}" required />
+                </div>
+                
+                <div class="form-group">
+                    <label for="modelo">Modelo:</label>
+                    <input type="text" id="modelo" th:field="*{modelo}"  required />
+                </div>
+
+                <div class="form-group">
+                    <label for="precio">Precio (€):</label>
+                    <input type="number" step="0.1" id="precio" min="2500" max="120000" th:field="*{precio}" placeholder="0.00" required />
+                </div>
+				<div class="form-group">
+				                    <label for="precio">Año:</label>
+				                    <input type="number" id="anio" min="1995" max="2026" th:field="*{anio}" placeholder="0.00" required />
+				                </div>
+
+                <div class="form-group">
+                    <label for="estado">Estado Inicial:</label>
+                    <select id="estado" th:field="*{estado}">
+                        <option th:each="est : ${estados}" 
+                                th:value="${est}" 
+                                th:text="${est}"></option>
+                    </select>
+                </div>
+
+				<div class="form-group">
+				    <label for="imagenUrl">URL Imagen:</label>
+				    <input type="text" id="imagenUrl" th:field="*{imagenUrl}" required />
+				</div>
+
+                <button type="submit" class="btn-guardar">Guardar Vehículo</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container" sec:authorize="!hasAnyAuthority('ROLE_ADMIN', 'ADMIN')">
+        <div class="card" style="text-align: center; padding: 50px;">
+            <h2>🚫 Acceso denegado</h2>
+            <p>Solo los administradores pueden registrar nuevos vehículos.</p>
+            <a th:href="@{/vehiculos}" class="btn-secundario">Volver al Catálogo</a>
+        </div>
+    </div>
+</body>
+</html>

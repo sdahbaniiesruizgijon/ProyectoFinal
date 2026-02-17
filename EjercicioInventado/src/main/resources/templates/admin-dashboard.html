@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+    <div class="container" sec:authorize="hasRole('ADMIN')">
+        <header>
+            <h1>Panel de Control (ADMIN)</h1>
+            <nav class="nav-links">
+                <a th:href="@{/vehiculos}" class="btn-edit">Ver Catálogo</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn-logout">Cerrar Sesión</button>
+                </form>
+            </nav>
+        </header>
+
+        <div class="card-grid" style="margin-top: 20px;">
+            <div class="card" style="text-align: center; background: #f4f4f4;">
+                <h3>Total Stock</h3>
+                <p style="font-size: 2em; font-weight: bold;" th:text="${totalCoches}">0</p>
+            </div>
+            <div class="card" style="text-align: center; background: #e8f4fd;">
+                <h3>Usuarios</h3>
+                <p style="font-size: 2em; font-weight: bold;" th:text="${#lists.size(usuarios)}">0</p>
+                <a th:href="@{/admin/usuarios}" style="font-size: 0.8em;">Ver detalles</a> 
+            </div>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <h3>Historial de Ventas</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Vehículo</th>
+                    <th>Comprador</th>
+                    <th>Fecha</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="v : ${ventas}">
+                    <td th:text="${v.vehiculo.marca + ' ' + v.vehiculo.modelo}">Coche</td>
+<td th:text="${v.cliente?.usuario != null ? v.cliente.usuario : 'Usuario eliminado'}">Usuario</td>                    <td th:text="${#temporals.format(v.fecha, 'dd/MM/yyyy HH:mm')}">Fecha</td>
+                    <td th:text="${v.precioVenta} + ' €'">0 €</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="margin-top: 40px;">Registro de Alquileres</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Vehículo</th>
+                    <th>Cliente</th>
+                    <th>Fin Alquiler</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="a : ${alquileres}">
+                    <td th:text="${a.vehiculo.marca + ' ' + a.vehiculo.modelo}">Coche</td>
+<td th:text="${a.cliente?.usuario != null ? a.cliente.usuario : 'Desconocido'}">Cliente</td>                    
+<td th:text="${a.fechaFin}">Fecha</td>
+                    <td>
+                        <span th:text="${a.devuelto ? 'Devuelto' : 'En uso'}" 
+                              th:style="${a.devuelto ? 'color: green' : 'color: red; font-weight: bold'}"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

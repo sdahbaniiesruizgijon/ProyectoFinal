@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+<div class="container" sec:authorize="hasRole('ADMIN')">
+    <h1>👥 Usuarios Registrados</h1>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Rol</th>
+                <th>Actividad</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="u : ${usuarios}">
+                <td th:text="${u.id}"></td>
+                <td th:text="${u.usuario}"></td>
+                <td th:text="${u.rol}"></td>
+                <td th:text="${u.vehiculos != null ? #lists.size(u.vehiculos) : 0} + ' vehículos'"></td>
+            </tr>
+        </tbody>
+    </table>
+    <a th:href="@{/admin/dashboard}" class="btn-edit">Volver al Dashboard</a>
+</div>
+</body>
+</html>

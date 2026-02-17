@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Vehículos</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+    <style>
+        .search-section { margin: 20px 0; padding: 25px; background: #f4f7f6; border-radius: 10px; border: 1px solid #ddd; }
+        .search-form { display: flex; gap: 10px; align-items: center; width: 100%; }
+        .search-input { flex: 4; padding: 12px; border: 2px solid #3498db; border-radius: 8px; font-size: 1rem; }
+        .btn-search { flex: 1; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        /* Estilo para las sugerencias de la API */
+        .card-external { border: 2px dashed #3498db !important; background-color: #f0f7ff; position: relative; }
+        .external-badge { position: absolute; top: 10px; right: 10px; background: #3498db; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; font-weight: bold; z-index: 10; }
+        
+        /* Botón de Shutterstock */
+        .btn-shutterstock {
+            display: block;
+            background-color: #e67e22;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-shutterstock:hover { background-color: #d35400; }
+        
+        .btn-import { background-color: #27ae60; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div>
+            <h1>Concesionario</h1>
+            <span>Bienvenido, <b th:text="${#authentication.name}">Usuario</b></span>
+        </div>
+        <nav class="nav-links">
+            <a sec:authorize="hasRole('CLIENTE')" th:href="@{/vehiculos/mis-vehiculos}">Mis Vehículos</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" style="color: #3498db;">Panel Admin</a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/vehiculos/aniadir}" style="color: #e67e22;">+ Nuevo Vehículo</a>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="btn-logout">Cerrar Sesión</button>
+            </form>
+        </nav>
+    </header>
+
+    <section class="search-section">
+        <h3>🔍 Consultar Modelos por Marca (Shutterstock Integration)</h3>
+        <form th:action="@{/vehiculos/buscar-api}" method="get" class="search-form">
+            <input type="text" name="marca" placeholder="Ej: Toyota, BMW, Audi..." required class="search-input">
+            <button type="submit" class="btn-search">Buscar en la Nube</button>
+        </form>
+    </section>
+
+    <div th:if="${resultadosApi != null}">
+        <h2 style="color: #3498db;">Sugerencias de la API</h2>
+        <div class="vehiculos-grid">
+            <div th:each="c : ${resultadosApi}" class="card card-external">
+                <span class="external-badge">NHTSA DATA</span>
+                <div class="card-image">
+                    <img th:src="${'https://loremflickr.com/300/200/car,' + c.make + ',' + c.model}" alt="Coche">
+                </div>
+                <div class="card-content">
+                    <h3 th:text="${c.make + ' ' + c.model}">Modelo</h3>
+                    <p>Año Ref: <span th:text="${c.year}"></span></p>
+
+                    <a th:href="${'https://www.shutterstock.com/es/search/' + c.make + '-' + c.model}" 
+                       target="_blank" class="btn-shutterstock">
+                        📸 Ver fotos en Shutterstock
+                    </a>
+                    
+                    <div sec:authorize="hasRole('ADMIN')">
+                        <form th:action="@{/vehiculos/importar}" method="post">
+                            <input type="hidden" name="marca" th:value="${c.make}">
+                            <input type="hidden" name="modelo" th:value="${c.model}">
+                            <input type="hidden" name="anio" th:value="${c.year}">
+                            <button type="submit" class="btn-import">📥 Registrar Stock</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr style="margin: 40px 0; border: 1px solid #eee;">
+    </div>
+
+    <h2>Nuestro Stock en Concesionario</h2>
+    <div class="vehiculos-grid">
+        <div th:each="v : ${vehiculos}" class="card">
+            <div class="card-image">
+                <img th:src="${v.imagenUrl != null && !v.imagenUrl.isEmpty() ? v.imagenUrl : 'https://via.placeholder.com/300x200?text=Sin+Foto'}" 
+                     alt="Vehículo">
+            </div>
+            
+            <div class="card-content">
+                <h3 th:text="${v.marca + ' ' + v.modelo}">Modelo</h3>
+
+                <span class="tag"
+                      th:classappend="${v.estado.name().toLowerCase() == 'libre' ? 'tag-libre' : (v.estado.name().toLowerCase() == 'alquilado' ? 'tag-alquilado' : 'tag-vendido')}"
+                      th:text="${v.estado}">
+                    Estado
+                </span>
+
+                <p style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;" th:text="${v.precio + ' €'}"></p>
+
+                <div sec:authorize="hasRole('CLIENTE')">
+                    <div th:if="${v.estado.name().toLowerCase() == 'libre'}" class="btn-group">
+                        <form th:action="@{/vehiculos/comprar/{id}(id=${v.id})}" method="post" style="flex:1;">
+                            <button type="submit" class="btn-comprar" style="width:100%;">Comprar</button>
+                        </form>
+                        <a th:href="@{/vehiculos/alquilar/{id}(id=${v.id})}" class="btn-edit" style="flex:1; text-align:center;">Alquilar</a>
+                        <a th:href="@{/vehiculos/detalles/{id}(id=${v.id})}" class="btn-edit" style="flex:1; background-color: #2ecc71; text-align:center;">Ficha</a>
+                    </div>
+                    <p th:unless="${v.estado.name().toLowerCase() == 'libre'}" class="text-muted">No disponible actualmente</p>
+                </div>
+
+                <div sec:authorize="hasRole('ADMIN')" class="admin-actions">
+                    <a th:href="@{/vehiculos/editar/{id}(id=${v.id})}" class="btn-edit">Editar</a>
+                    <a th:href="@{/vehiculos/eliminar/{id}(id=${v.id})}" class="btn-delete" 
+                       onclick="return confirm('¿Eliminar registro?');">Eliminar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

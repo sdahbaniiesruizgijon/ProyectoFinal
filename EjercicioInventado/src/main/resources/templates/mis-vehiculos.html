@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Mis Vehículos</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+    <div class="container" sec:authorize="hasRole('CLIENTE')">
+        <header>
+            <h1>Mis Adquisiciones</h1>
+            <a th:href="@{/vehiculos}" class="btn-edit">Volver al Catálogo</a>
+        </header>
+
+        <h3>Mis Compras (Historial)</h3>
+        <div class="card-grid">
+            <div th:each="p : ${pedidos}" class="card">
+                <h3 th:text="${p.vehiculo.marca + ' ' + p.vehiculo.modelo}"></h3>
+                <p>Fecha: <span th:text="${#temporals.format(p.fecha, 'dd-MM-yyyy')}"></span></p>
+                <span class="tag tag-vendido">Comprado</span>
+            </div>
+        </div>
+
+		<h3 style="margin-top: 20px;">Alquileres Activos</h3>
+		<div class="card-grid">
+		    <div th:each="a : ${alquileres}" class="card">
+		        <h3 th:text="${a.vehiculo.marca + ' ' + a.vehiculo.modelo}"></h3>
+		        <p>Fin: <span th:text="${a.fechaFin}"></span></p>
+
+		        <div th:if="${a.multa > 0}" style="margin: 10px 0; padding: 10px; background-color: #fce4e4; border: 1px solid #f5c6cb; border-radius: 5px;">
+		            <p style="color: #721c24; font-weight: bold; margin: 0;">
+		                ⚠ ¡Plazo excedido!
+		            </p>
+		            <p style="color: #721c24; margin: 0;">
+		                Multa total: <span th:text="${#numbers.formatDecimal(a.multa, 1, 2)}">0.00</span>€
+		            </p>
+		            <small style="color: #721c24;">(Incluye recargo por demora)</small>
+		        </div>
+		        
+		        <form th:if="${!a.devuelto}" th:action="@{/vehiculos/devolver/{idAlquiler}(idAlquiler=${a.id})}" method="post">
+		            <button type="submit" class="btn-delete" style="background-color: #27ae60;">Devolver Coche</button>
+		        </form>
+		        <span th:if="${a.devuelto}" class="tag" style="background-color: gray;">Ya Devuelto</span>
+		    </div>
+		</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Alquilar Vehículo</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>🗓️ Alquilar Vehículo</h1>
+        
+        <div class="card">
+            <p>Has seleccionado: <strong th:text="${alquiler.vehiculo.marca + ' ' + alquiler.vehiculo.modelo}"></strong></p>
+            <p>Precio por día: <span th:text="${alquiler.vehiculo.precio / 100}"></span> €</p>
+        </div>
+
+        <form th:action="@{/vehiculos/procesar-alquiler}" th:object="${alquiler}" method="post">
+            <input type="hidden" th:field="*{vehiculo.id}">
+            
+            <label for="fechaInicio">Inicio de alquiler:</label>
+            <input type="date" id="fechaInicio" th:field="*{fechaInicio}" required 
+                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+
+            <label for="fechaFin">¿Hasta cuándo quieres alquilarlo?</label>
+            <input type="date" id="fechaFin" th:field="*{fechaFin}" required 
+                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn-edit">Confirmar Alquiler</button>
+                <a th:href="@{/vehiculos}" class="btn-logout">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const fInicio = document.getElementById('fechaInicio');
+        const fFin = document.getElementById('fechaFin');
+
+        // Al cambiar la fecha de inicio, ajustamos el mínimo permitido de la fecha fin
+        fInicio.addEventListener('change', function() {
+            if (this.value) {
+                // El atributo 'min' hace que el navegador muestre un error nativo al intentar enviar
+                fFin.min = this.value;
+                
+                // Si la fecha de fin ya elegida es anterior a la nueva fecha de inicio, la reseteamos
+                if (fFin.value && fFin.value < this.value) {
+                    fFin.value = this.value;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

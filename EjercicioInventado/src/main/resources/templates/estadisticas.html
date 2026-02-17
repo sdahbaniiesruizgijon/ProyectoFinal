@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Estadísticas Vehículo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+<div class="container">
+    <h1>📊 Estadísticas del Vehículo</h1>
+
+    <div class="card">
+        <p><strong>ID:</strong> <span th:text="${vehiculo.id}"></span></p>
+        <p><strong>Marca:</strong> <span th:text="${vehiculo.marca}"></span></p>
+        <p><strong>Modelo:</strong> <span th:text="${vehiculo.modelo}"></span></p>
+        <p><strong>Año:</strong> <span th:text="${vehiculo.anio}"></span></p>
+        <p><strong>Precio:</strong> $<span th:text="${vehiculo.precio}"></span></p>
+        <p><strong>Estado:</strong> <span th:text="${vehiculo.estado}"></span></p>
+    </div>
+
+    <a th:href="@{/vehiculos}" class="btn secondary">⬅️ Volver al Catálogo</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Editar Vehículo</title>
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+<body>
+    <div class="container" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ADMIN')">
+        <header>
+            <h1>Editar Vehículo</h1>
+            <a th:href="@{/vehiculos}" class="btn-secundario">Cancelar</a>
+        </header>
+
+        <div class="form-card">
+            <form th:action="@{/vehiculos/editar}" th:object="${vehiculo}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                
+                <div class="form-group">
+                    <label>Marca:</label>
+                    <input type="text" th:field="*{marca}" required />
+                </div>
+                
+                <div class="form-group">
+                    <label>Modelo:</label>
+                    <input type="text" th:field="*{modelo}" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Precio (€):</label>
+                    <input type="number" step="0.01" min="2500" max="120000" th:field="*{precio}" required />
+                </div>
+				<div class="form-group">
+								                    <label for="precio">Año:</label>
+								                    <input type="number" id="anio" min="1995" max="2026" th:field="*{anio}" placeholder="0.00" required />
+								                </div>
+
+                <div class="form-group">
+                    <label>Estado:</label>
+                    <select th:field="*{estado}">
+                        <option th:each="est : ${estados}" th:value="${est}" th:text="${est}"></option>
+                    </select>
+                </div>
+
+				<div class="form-group">
+				    <label>URL Imagen:</label>
+				    <input type="text" th:field="*{imagenUrl}" required />
+				</div>
+
+                <button type="submit" class="btn-guardar">Actualizar Datos</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container" sec:authorize="!hasAnyAuthority('ROLE_ADMIN', 'ADMIN')">
+        <div class="card" style="text-align: center; padding: 50px;">
+            <h2>🚫 Acceso restringido</h2>
+            <p>Solo el personal autorizado puede editar vehículos.</p>
+            <a th:href="@{/vehiculos}" class="btn-secundario">Volver</a>
+        </div>
+    </div>
+</body>
+</html>
