@@ -34,7 +34,7 @@ public class UsuarioServicioImpl implements UsuarioServicio {
             Usuario nuevo = new Usuario();
             nuevo.setUsuario(email);
             nuevo.setPassword("OAUTH_USER"); // No necesitan contraseña real
-            nuevo.setRol("ROLE_CLIENTE");    // <--- ASIGNAMOS EL ROL AQUÍ
+            nuevo.setRol("ROLE_CLIENTE");    // ASIGNAMOS EL ROL AQUÍ
             return repo.save(nuevo);
         }
         
@@ -53,7 +53,7 @@ public class UsuarioServicioImpl implements UsuarioServicio {
 
     @Override
     public Usuario actualizarUsuario(Usuario usuario) {
-        // IMPORTANTE: Antes de salvar, recuperamos el usuario original de la BD
+        // Antes de salvar, recuperamos el usuario original de la BD
         // para no perder el ROL o encriptar doble la contraseña.
         Usuario existente = repo.findById(usuario.getId()).orElse(null);
         if (existente != null) {

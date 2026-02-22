@@ -5,20 +5,46 @@
     <link rel="stylesheet" th:href="@{/css/estilo.css}">
 </head>
 <body>
-    <div class="container" style="max-width: 400px; margin-top: 50px;">
-        <h1>Crear Cuenta</h1>
-        <form th:action="@{/registrarse}" method="post" class="form-card">
-            <label>Nombre de Usuario:</label>
-            <input type="text" name="usuario" required />
-            
-            <label>Contraseña:</label>
-            <input type="password" name="password" required />
 
-            <button type="submit" style="width: 100%; background-color: #27ae60;">Registrarme</button>
+    <div class="container">
+        <h1>Crear Cuenta</h1>
+
+        <div th:if="${error}" class="error-msg">
+            <span th:text="${error}">Error en la validación</span>
+        </div>
+
+        <form th:action="@{/registrarse}" method="post">
+            
+            <div class="form-group">
+                <label>Nombre de Usuario:</label>
+                <input type="text" 
+                       name="usuario" 
+                       th:value="${usuarioExistente}" 
+                       placeholder="Ej: juan_perez"
+                       required />
+            </div>
+            
+            <div class="form-group">
+                <label>Contraseña:</label>
+                <input type="password" 
+                       name="password" 
+                       id="password"
+                       pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" 
+                       title="Debe contener al menos 8 caracteres, una mayúscula y un número"
+                       placeholder="••••••••"
+                       required />
+                <p class="help-text">
+                    Requisitos: Mínimo 8 caracteres, una mayúscula y un número.
+                </p>
+            </div>
+
+            <button type="submit">Registrarme</button>
         </form>
-        <p style="text-align: center; margin-top: 15px;">
-            <a th:href="@{/login}">Volver al login</a>
-        </p>
+
+        <div class="footer-link">
+            <a th:href="@{/login}">¿Ya tienes cuenta? Inicia sesión</a>
+        </div>
     </div>
+
 </body>
 </html>

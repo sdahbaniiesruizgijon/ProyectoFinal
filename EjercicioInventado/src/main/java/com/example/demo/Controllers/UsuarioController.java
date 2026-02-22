@@ -20,7 +20,7 @@ public class UsuarioController {
         return "redirect:/login";
     }
 
-    // Login (Gestionado visualmente aquí, lógica por Spring Security)
+    // Login 
     @GetMapping("/login")
     public String mostrarLogin(@RequestParam(value = "error", required = false) String error, Model model) {
         if (error != null) {
@@ -37,14 +37,24 @@ public class UsuarioController {
     }
 
     @PostMapping("/registrarse")
-    public String registrarUsuario(@RequestParam String usuario, @RequestParam String password) {
-        Usuario nuevo = new Usuario();
-        nuevo.setUsuario(usuario);
-        nuevo.setPassword(password);
-        
-        // Importante: El servicio debe encriptar la contraseña y asignar rol por defecto
-        usuarioServicio.guardarUsuario(nuevo); 
-        
-        return "redirect:/login";
+public String registrarUsuario(@RequestParam String usuario, @RequestParam String password, Model model) {
+    
+    //  Definimos la expresión regular
+    // Mínimo 8 caracteres, una mayúscula, una minúscula y un número
+    String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$";
+
+    //  Validamos la contraseña
+    if (!password.matches(regex)) {
+        model.addAttribute("error", "La contraseña no cumple con los requisitos mínimos.");
+        model.addAttribute("usuarioExistente", usuario); // Para no borrarle el nombre de usuario
+        return "registrarse"; // Recarga la página mostrando el error
     }
+    Usuario nuevo = new Usuario();
+    nuevo.setUsuario(usuario);
+    nuevo.setPassword(password);
+    
+    usuarioServicio.guardarUsuario(nuevo); 
+    
+    return "redirect:/login";
+}
 }
