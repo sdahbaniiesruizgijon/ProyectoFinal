@@ -91,43 +91,56 @@
     </div>
 
     <h2>Nuestro Stock en Concesionario</h2>
-    <div class="vehiculos-grid">
-        <div th:each="v : ${vehiculos}" class="card">
-            <div class="card-image">
-                <img th:src="${v.imagenUrl != null && !v.imagenUrl.isEmpty() ? v.imagenUrl : 'https://via.placeholder.com/300x200?text=Sin+Foto'}" 
-                     alt="Vehículo">
-            </div>
+<div class="vehiculos-grid">
+    <div th:each="v : ${vehiculos}" class="card card-external">
+        
+        <span class="external-badge" style="background: #27ae60;">STOCK LOCAL</span>
+
+        <div class="card-image">
+    <img th:src="${(v.imagenUrl != null && !v.imagenUrl.isEmpty()) 
+                  ? v.imagenUrl 
+                  : 'https://loremflickr.com/300/200/car,' + v.marca + ',' + v.modelo + '/all'}" 
+         alt="Vehículo">
+</div>
+        
+        <div class="card-content">
+            <h3 th:text="${v.marca + ' ' + v.modelo}">Modelo</h3>
             
-            <div class="card-content">
-                <h3 th:text="${v.marca + ' ' + v.modelo}">Modelo</h3>
+            <span class="tag"
+                  th:classappend="${v.estado.name().toLowerCase() == 'libre' ? 'tag-libre' : (v.estado.name().toLowerCase() == 'alquilado' ? 'tag-alquilado' : 'tag-vendido')}"
+                  th:text="${v.estado}">
+                Estado
+            </span>
 
-                <span class="tag"
-                      th:classappend="${v.estado.name().toLowerCase() == 'libre' ? 'tag-libre' : (v.estado.name().toLowerCase() == 'alquilado' ? 'tag-alquilado' : 'tag-vendido')}"
-                      th:text="${v.estado}">
-                    Estado
-                </span>
+            <p style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;" th:text="${v.precio + ' €'}"></p>
 
-                <p style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;" th:text="${v.precio + ' €'}"></p>
+            <a th:href="${'https://www.shutterstock.com/es/search/' + v.marca + '-' + v.modelo}" 
+               target="_blank" class="btn-shutterstock">
+               📸 Ver fotos reales
+            </a>
 
-                <div sec:authorize="hasRole('CLIENTE')">
-                    <div th:if="${v.estado.name().toLowerCase() == 'libre'}" class="btn-group">
-                        <form th:action="@{/vehiculos/comprar/{id}(id=${v.id})}" method="post" style="flex:1;">
-                            <button type="submit" class="btn-comprar" style="width:100%;">Comprar</button>
-                        </form>
-                        <a th:href="@{/vehiculos/alquilar/{id}(id=${v.id})}" class="btn-edit" style="flex:1; text-align:center;">Alquilar</a>
-                        <a th:href="@{/vehiculos/detalles/{id}(id=${v.id})}" class="btn-edit" style="flex:1; background-color: #2ecc71; text-align:center;">Ficha</a>
-                    </div>
-                    <p th:unless="${v.estado.name().toLowerCase() == 'libre'}" class="text-muted">No disponible actualmente</p>
+            <div sec:authorize="hasRole('CLIENTE')">
+                <div th:if="${v.estado.name().toLowerCase() == 'libre'}" class="btn-group">
+                    <form th:action="@{/vehiculos/comprar/{id}(id=${v.id})}" method="post" style="flex:1;">
+                        <button type="submit" class="btn-comprar" style="width:100%;">Comprar</button>
+                    </form>
+                    <a th:href="@{/vehiculos/alquilar/{id}(id=${v.id})}" class="btn-edit" style="flex:1; text-align:center;">Alquilar</a>
                 </div>
+                <a th:href="@{/vehiculos/detalles/{id}(id=${v.id})}" class="btn-edit" 
+                   style="display:block; margin-top:5px; background-color: #2ecc71; text-align:center;">
+                   📄 Ver Ficha Técnica
+                </a>
+                <p th:unless="${v.estado.name().toLowerCase() == 'libre'}" class="text-muted" style="margin-top:10px;">No disponible actualmente</p>
+            </div>
 
-                <div sec:authorize="hasRole('ADMIN')" class="admin-actions">
-                    <a th:href="@{/vehiculos/editar/{id}(id=${v.id})}" class="btn-edit">Editar</a>
-                    <a th:href="@{/vehiculos/eliminar/{id}(id=${v.id})}" class="btn-delete" 
-                       onclick="return confirm('¿Eliminar registro?');">Eliminar</a>
-                </div>
+            <div sec:authorize="hasRole('ADMIN')" class="admin-actions" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
+                <a th:href="@{/vehiculos/editar/{id}(id=${v.id})}" class="btn-edit">Editar</a>
+                <a th:href="@{/vehiculos/eliminar/{id}(id=${v.id})}" class="btn-delete" 
+                   onclick="return confirm('¿Eliminar registro?');">Eliminar</a>
             </div>
         </div>
     </div>
+</div>
 </div>
 </body>
 </html>

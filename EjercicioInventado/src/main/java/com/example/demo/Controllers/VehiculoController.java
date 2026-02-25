@@ -12,7 +12,6 @@ import com.example.demo.clases.*;
 import com.example.demo.dto.CarDTO;
 
 import java.time.LocalDateTime;
-import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -34,10 +33,7 @@ public class VehiculoController {
     @Autowired
     private CarApiService carApiService;
 
-    // =========================================================
-    // 1. VISTAS PRINCIPALES Y BÚSQUEDA EXTERNA
-    // =========================================================
-
+    // 1. VISTAS PRINCIPALES
     @GetMapping("")
     public String listar(Model model, Authentication auth) {
         model.addAttribute("vehiculos", vehiculoServicio.listarTodos());
@@ -47,23 +43,16 @@ public class VehiculoController {
 
     @GetMapping("/buscar-api")
     public String buscarEnApi(@RequestParam String marca, Model model, Authentication auth) {
-        // 1. CARGA LOCAL: Imprescindible para que no se borre tu stock de la pantalla
         model.addAttribute("vehiculos", vehiculoServicio.listarTodos());
         model.addAttribute("username", (auth != null) ? auth.getName() : "Invitado");
 
-        //  BUSQUEDA API:'marca' no debe llegue vacío
         if (marca != null && !marca.trim().isEmpty()) {
             List<CarDTO> resultados = carApiService.buscarCochesExternos(marca);
             model.addAttribute("resultadosApi", resultados);
-            
-            // Debug para ver en consola si la API encuentra algo
-            System.out.println("Coches encontrados para " + marca + ": " + resultados.size());
         }
-        
         return "catalogo"; 
     }
 
-    
     @PostMapping("/importar")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ADMIN')")
     public String importarVehiculo(@RequestParam String marca, @RequestParam String modelo, @RequestParam int anio) {
@@ -74,26 +63,23 @@ public class VehiculoController {
         nuevo.setPrecio(15000.0);
         nuevo.setEstado(Estado.libre);
         
+        String fotoDefault = "https://loremflickr.com/300/200/car," + marca.toLowerCase() + "," + modelo.toLowerCase();
+        nuevo.setImagenUrl(fotoDefault);
+        
         vehiculoServicio.guardar(nuevo);
-        return "redirect:/vehiculos"; // Redirige al catálogo general
+        return "redirect:/vehiculos";
     }
 
-    // =========================================================
-    // 2. ACCIONES DE CLIENTE (Compra y Alquiler)
-    // =========================================================
-
-
+    // 2. ACCIONES DE CLIENTE
     @GetMapping("/mis-vehiculos")
     @PreAuthorize("hasRole('CLIENTE')")
     public String misVehiculos(Model model, Authentication auth) {
         Usuario cliente = usuarioServicio.obtenerPorNombre(auth.getName());
-        
         List<Alquiler> alquileres = alquilerServicio.listarPorCliente(cliente);
         
-        // Calculamos la multa actualizada para cada alquiler activo antes de mostrarlo
         for (Alquiler a : alquileres) {
             a.calcularMulta();
-            alquilerServicio.guardar(a); // Actualizamos en BD el valor de la multa
+            alquilerServicio.guardar(a);
         }
         
         model.addAttribute("pedidos", pedidoServicio.listarPorCliente(cliente));
@@ -139,25 +125,24 @@ public class VehiculoController {
 
     @PostMapping("/procesar-alquiler")
     @PreAuthorize("hasRole('CLIENTE')")
-    public String procesarAlquiler(@ModelAttribute Alquiler alquiler, Authentication auth, Model model) {
-        // Verificación de seguridad: fechaFin no puede ser anterior a fechaInicio
+    public String procesarAlquiler(@ModelAttribute Alquiler alquiler, Authentication auth) {
         if (alquiler.getFechaFin().isBefore(alquiler.getFechaInicio())) {
             return "redirect:/vehiculos/alquilar/" + alquiler.getVehiculo().getId() + "?error=fecha-invalida";
         }
 
-        Usuario cliente = usuarioServicio.obtenerPorNombre(auth.getName()); //
-        Vehiculo v = vehiculoServicio.obtenerPorId(alquiler.getVehiculo().getId()); //
+        Usuario cliente = usuarioServicio.obtenerPorNombre(auth.getName());
+        Vehiculo v = vehiculoServicio.obtenerPorId(alquiler.getVehiculo().getId());
 
-        if (v != null && v.getEstado() == Estado.libre) { //
-            alquiler.setCliente(cliente); //
-            alquiler.setDevuelto(false); //
-            
-            v.setEstado(Estado.alquilado); //
-            vehiculoServicio.guardar(v); //
-            alquilerServicio.guardar(alquiler); //
+        if (v != null && v.getEstado() == Estado.libre) {
+            alquiler.setCliente(cliente);
+            alquiler.setDevuelto(false);
+            v.setEstado(Estado.alquilado);
+            vehiculoServicio.guardar(v);
+            alquilerServicio.guardar(alquiler);
         }
-        return "redirect:/vehiculos/mis-vehiculos?exito=alquiler"; //
+        return "redirect:/vehiculos/mis-vehiculos?exito=alquiler";
     }
+
     @PostMapping("/devolver/{idAlquiler}")
     @PreAuthorize("hasRole('CLIENTE')")
     public String devolverCoche(@PathVariable Integer idAlquiler) {
@@ -172,10 +157,7 @@ public class VehiculoController {
         return "redirect:/vehiculos/mis-vehiculos?exito=devolucion";
     }
 
-    // =========================================================
-    // 3. ACCIONES DE ADMIN (Gestión CRUD)
-    // =========================================================
-
+    // 3. ACCIONES DE ADMIN
     @GetMapping("/aniadir")
     @PreAuthorize("hasRole('ADMIN')")
     public String formAniadir(Model model) {
@@ -187,6 +169,11 @@ public class VehiculoController {
     @PostMapping("/aniadir")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ADMIN')")
     public String guardarNuevo(@ModelAttribute Vehiculo vehiculo) {
+        if (vehiculo.getImagenUrl() == null || vehiculo.getImagenUrl().trim().isEmpty()) {
+            vehiculo.setImagenUrl("https://loremflickr.com/300/200/car," 
+                                 + vehiculo.getMarca().toLowerCase() + "," 
+                                 + vehiculo.getModelo().toLowerCase());
+        }
         vehiculoServicio.guardar(vehiculo);
         return "redirect:/vehiculos";
     }
@@ -206,6 +193,11 @@ public class VehiculoController {
     @PostMapping("/editar")
     @PreAuthorize("hasRole('ADMIN')")
     public String actualizarVehiculo(@ModelAttribute Vehiculo vehiculo) {
+        if (vehiculo.getImagenUrl() == null || vehiculo.getImagenUrl().trim().isEmpty()) {
+            vehiculo.setImagenUrl("https://loremflickr.com/300/200/car," 
+                                 + vehiculo.getMarca().toLowerCase() + "," 
+                                 + vehiculo.getModelo().toLowerCase());
+        }
         vehiculoServicio.guardar(vehiculo);
         return "redirect:/vehiculos";
     }
@@ -215,7 +207,7 @@ public class VehiculoController {
         Vehiculo v = vehiculoServicio.obtenerPorId(id);
         if (v != null) {
             model.addAttribute("vehiculo", v);
-            return "estadisticas"; // Nombre del archivo HTML que creaste
+            return "estadisticas";
         }
         return "redirect:/vehiculos";
     }
@@ -226,4 +218,4 @@ public class VehiculoController {
         vehiculoServicio.borrar(id);
         return "redirect:/vehiculos";
     }
-}
+} // <--- ESTA ES LA ÚNICA LLAVE QUE CIERRA LA CLASE

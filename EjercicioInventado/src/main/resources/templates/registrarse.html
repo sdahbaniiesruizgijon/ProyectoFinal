@@ -19,6 +19,8 @@
                 <label>Nombre de Usuario:</label>
                 <input type="text" 
                        name="usuario" 
+                       pattern="^[a-zA-Z0-9_]{4,15}$" 
+                       title="Debe contener al menos 4 hasta 15 caracteres"
                        th:value="${usuarioExistente}" 
                        required />
             </div>

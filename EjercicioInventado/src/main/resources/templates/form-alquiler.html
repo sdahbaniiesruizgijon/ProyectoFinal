@@ -11,40 +11,62 @@
         <div class="card">
             <p>Has seleccionado: <strong th:text="${alquiler.vehiculo.marca + ' ' + alquiler.vehiculo.modelo}"></strong></p>
             <p>Precio por día: <span th:text="${alquiler.vehiculo.precio / 100}"></span> €</p>
+            <p><small>* Máximo 3 meses de alquiler. Reserva permitida hasta con 6 meses de antelación.</small></p>
         </div>
 
-        <form th:action="@{/vehiculos/procesar-alquiler}" th:object="${alquiler}" method="post">
+        <form th:action="@{/vehiculos/procesar-alquiler}" th:object="${alquiler}" method="post" id="rentalForm">
             <input type="hidden" th:field="*{vehiculo.id}">
             
             <label for="fechaInicio">Inicio de alquiler:</label>
             <input type="date" id="fechaInicio" th:field="*{fechaInicio}" required 
-                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                   th:max="${#temporals.format(#temporals.createNow().plusMonths(6), 'yyyy-MM-dd')}">
 
             <label for="fechaFin">¿Hasta cuándo quieres alquilarlo?</label>
-            <input type="date" id="fechaFin" th:field="*{fechaFin}" required 
-                   th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
+            <input type="date" id="fechaFin" th:field="*{fechaFin}" required>
 
             <div style="margin-top: 20px;">
                 <button type="submit" class="btn-edit">Confirmar Alquiler</button>
                 <a th:href="@{/vehiculos}" class="btn-logout">Cancelar</a>
             </div>
+            <p id="error-msg" style="color: red; font-size: 0.9em; margin-top: 10px;"></p>
         </form>
     </div>
 
     <script>
         const fInicio = document.getElementById('fechaInicio');
         const fFin = document.getElementById('fechaFin');
+        const errorMsg = document.getElementById('error-msg');
 
-        // Al cambiar la fecha de inicio, ajustamos el mínimo permitido de la fecha fin
-        fInicio.addEventListener('change', function() {
-            if (this.value) {
-                // El atributo 'min' hace que el navegador muestre un error nativo al intentar enviar
-                fFin.min = this.value;
+        function actualizarRestricciones() {
+            if (fInicio.value) {
+                const fechaInicioVal = new Date(fInicio.value);
                 
-                // Si la fecha de fin ya elegida es anterior a la nueva fecha de inicio, la reseteamos
-                if (fFin.value && fFin.value < this.value) {
-                    fFin.value = this.value;
+                fFin.min = fInicio.value;
+
+                // Sumamos 3 meses a la fecha de inicio seleccionada
+                let maxFin = new Date(fechaInicioVal);
+                maxFin.setMonth(maxFin.getMonth() + 3);
+                
+                const maxFinStr = maxFin.toISOString().split('T')[0];
+                fFin.max = maxFinStr;
+
+                if (fFin.value && (fFin.value < fInicio.value || fFin.value > maxFinStr)) {
+                    fFin.value = "";
+                    errorMsg.textContent = "La duración máxima permitida es de 3 meses.";
+                } else {
+                    errorMsg.textContent = "";
                 }
+            }
+        }
+
+        fInicio.addEventListener('change', actualizarRestricciones);
+        
+        // Validación extra al intentar enviar el formulario
+        document.getElementById('rentalForm').addEventListener('submit', function(e) {
+            if (fFin.value > fFin.max) {
+                e.preventDefault();
+                alert("El alquiler no puede superar los 3 meses de duración.");
             }
         });
     </script>
