@@ -1,38 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="[thymeleaf.org](http://www.thymeleaf.org)" xmlns:sec="[thymeleaf.org](http://www.thymeleaf.org/extras/spring-security)">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo de Vehículos</title>
     <link rel="stylesheet" th:href="@{/css/estilo.css}">
-    <style>
-        .search-section { margin: 20px 0; padding: 25px; background: #f4f7f6; border-radius: 10px; border: 1px solid #ddd; }
-        .search-form { display: flex; gap: 10px; align-items: center; width: 100%; }
-        .search-input { flex: 4; padding: 12px; border: 2px solid #3498db; border-radius: 8px; font-size: 1rem; }
-        .btn-search { flex: 1; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        
-        /* Estilo para las sugerencias de la API */
-        .card-external { border: 2px dashed #3498db !important; background-color: #f0f7ff; position: relative; }
-        .external-badge { position: absolute; top: 10px; right: 10px; background: #3498db; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; font-weight: bold; z-index: 10; }
-        
-        /* Botón de Shutterstock */
-        .btn-shutterstock {
-            display: block;
-            background-color: #e67e22;
-            color: white;
-            text-align: center;
-            padding: 8px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        .btn-shutterstock:hover { background-color: #d35400; }
-        
-        .btn-import { background-color: #27ae60; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
-    </style>
+   
 </head>
 <body>
 <div class="container">
@@ -65,13 +38,12 @@
             <div th:each="c : ${resultadosApi}" class="card card-external">
                 <span class="external-badge">NHTSA DATA</span>
                 <div class="card-image">
-                    <img th:src="${'https://loremflickr.com/300/200/car,' + c.make + ',' + c.model}" alt="Coche">
-                </div>
+                    <img th:src="|https://loremflickr.com/300/200/car,${c.make},${c.model}|" alt="Coche">                </div>
                 <div class="card-content">
                     <h3 th:text="${c.make + ' ' + c.model}">Modelo</h3>
                     <p>Año Ref: <span th:text="${c.year}"></span></p>
 
-                    <a th:href="${'https://www.shutterstock.com/es/search/' + c.make + '-' + c.model}" 
+                    <a th:href="${'[shutterstock.com](https://www.shutterstock.com/es/search/)' + c.make + '-' + c.model}" 
                        target="_blank" class="btn-shutterstock">
                         📸 Ver fotos en Shutterstock
                     </a>
@@ -99,7 +71,7 @@
         <div class="card-image">
     <img th:src="${(v.imagenUrl != null && !v.imagenUrl.isEmpty()) 
                   ? v.imagenUrl 
-                  : 'https://loremflickr.com/300/200/car,' + v.marca + ',' + v.modelo + '/all'}" 
+                  : '[loremflickr.com](https://loremflickr.com/300/200/car)' + v.marca + ',' + v.modelo + '/all'}" 
          alt="Vehículo">
 </div>
         
@@ -114,13 +86,8 @@
 
             <p style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;" th:text="${v.precio + ' €'}"></p>
 
-            <a th:href="${'https://www.shutterstock.com/es/search/' + v.marca + '-' + v.modelo}" 
-               target="_blank" class="btn-shutterstock">
-               📸 Ver fotos reales
-            </a>
-
             <div sec:authorize="hasRole('CLIENTE')">
-                <div th:if="${v.estado.name().toLowerCase() == 'libre'}" class="btn-group">
+                <div th:if="${v.estado.name().toLowerCase() == 'libre'}" class="btn-group" style="display: flex; gap: 5px;">
                     <form th:action="@{/vehiculos/comprar/{id}(id=${v.id})}" method="post" style="flex:1;">
                         <button type="submit" class="btn-comprar" style="width:100%;">Comprar</button>
                     </form>
