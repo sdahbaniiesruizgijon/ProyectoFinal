@@ -63,7 +63,7 @@ public class VehiculoController {
         nuevo.setPrecio(15000.0);
         nuevo.setEstado(Estado.libre);
         
-        String fotoDefault = "https://source.unsplash.com/300x200/?car," + marca.toLowerCase() + "," + modelo.toLowerCase();
+       String fotoDefault = "https://image.pollinations.ai/prompt/car," + marca.toLowerCase() + "," + modelo.toLowerCase();
         nuevo.setImagenUrl(fotoDefault);
         
         vehiculoServicio.guardar(nuevo);
@@ -170,9 +170,9 @@ public class VehiculoController {
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ADMIN')")
     public String guardarNuevo(@ModelAttribute Vehiculo vehiculo) {
         if (vehiculo.getImagenUrl() == null || vehiculo.getImagenUrl().trim().isEmpty()) {
-            vehiculo.setImagenUrl("https://source.unsplash.com/300x200/?car," 
-                                 + vehiculo.getMarca().toLowerCase() + "," 
-                                 + vehiculo.getModelo().toLowerCase());
+            vehiculo.setImagenUrl("https://image.pollinations.ai/prompt/car," 
+                      + vehiculo.getMarca().toLowerCase() + "," 
+                      + vehiculo.getModelo().toLowerCase());
         }
         vehiculoServicio.guardar(vehiculo);
         return "redirect:/vehiculos";
@@ -194,9 +194,9 @@ public class VehiculoController {
     @PreAuthorize("hasRole('ADMIN')")
     public String actualizarVehiculo(@ModelAttribute Vehiculo vehiculo) {
         if (vehiculo.getImagenUrl() == null || vehiculo.getImagenUrl().trim().isEmpty()) {
-            vehiculo.setImagenUrl("https://source.unsplash.com/300x200/?car," 
-                                 + vehiculo.getMarca().toLowerCase() + "," 
-                                 + vehiculo.getModelo().toLowerCase());
+            vehiculo.setImagenUrl("https://image.pollinations.ai/prompt/car," 
+                      + vehiculo.getMarca().toLowerCase() + "," 
+                      + vehiculo.getModelo().toLowerCase());
         }
         vehiculoServicio.guardar(vehiculo);
         return "redirect:/vehiculos";
@@ -218,4 +218,4 @@ public class VehiculoController {
         vehiculoServicio.borrar(id);
         return "redirect:/vehiculos";
     }
-} // <--- ESTA ES LA ÚNICA LLAVE QUE CIERRA LA CLASE
+}

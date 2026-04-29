@@ -1,113 +1,123 @@
 <!DOCTYPE html>
-<html xmlns:th="[thymeleaf.org](http://www.thymeleaf.org)" xmlns:sec="[thymeleaf.org](http://www.thymeleaf.org/extras/spring-security)">
+<html xmlns:th="[thymeleaf.org](http://www.thymeleaf.org)"
+    xmlns:sec="[thymeleaf.org](http://www.thymeleaf.org/extras/spring-security)">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo de Vehículos</title>
     <link rel="stylesheet" th:href="@{/css/estilo.css}">
-   
+
 </head>
+
 <body>
-<div class="container">
-    <header>
-        <div>
-            <h1>Concesionario</h1>
-            <span>Bienvenido, <b th:text="${#authentication.name}">Usuario</b></span>
-        </div>
-        <nav class="nav-links">
-            <a sec:authorize="hasRole('CLIENTE')" th:href="@{/vehiculos/mis-vehiculos}">Mis Vehículos</a>
-            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" style="color: #3498db;">Panel Admin</a>
-            <a sec:authorize="hasRole('ADMIN')" th:href="@{/vehiculos/aniadir}" style="color: #e67e22;">+ Nuevo Vehículo</a>
-            <form th:action="@{/logout}" method="post" style="display: inline;">
-                <button type="submit" class="btn-logout">Cerrar Sesión</button>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Concesionario</h1>
+                <span>Bienvenido, <b th:text="${#authentication.name}">Usuario</b></span>
+            </div>
+            <nav class="nav-links">
+                <a sec:authorize="hasRole('CLIENTE')" th:href="@{/vehiculos/mis-vehiculos}">Mis Vehículos</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/dashboard}" style="color: #3498db;">Panel
+                    Admin</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/vehiculos/aniadir}" style="color: #e67e22;">+ Nuevo
+                    Vehículo</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn-logout">Cerrar Sesión</button>
+                </form>
+            </nav>
+        </header>
+
+        <section class="search-section">
+            <h3>🔍 Consultar Modelos por Marca (Shutterstock Integration)</h3>
+            <form th:action="@{/vehiculos/buscar-api}" method="get" class="search-form">
+                <input type="text" name="marca" placeholder="Ej: Toyota, BMW, Audi..." required class="search-input">
+                <button type="submit" class="btn-search">Buscar en la Nube</button>
             </form>
-        </nav>
-    </header>
+        </section>
 
-    <section class="search-section">
-        <h3>🔍 Consultar Modelos por Marca (Shutterstock Integration)</h3>
-        <form th:action="@{/vehiculos/buscar-api}" method="get" class="search-form">
-            <input type="text" name="marca" placeholder="Ej: Toyota, BMW, Audi..." required class="search-input">
-            <button type="submit" class="btn-search">Buscar en la Nube</button>
-        </form>
-    </section>
+        <div th:if="${resultadosApi != null}">
+            <h2 style="color: #3498db;">Sugerencias de la API</h2>
+            <div class="vehiculos-grid">
+                <div th:each="c : ${resultadosApi}" class="card card-external">
+                    <span class="external-badge">NHTSA DATA</span>
+                    <div class="card-image">
+                        <img th:src="|https://image.pollinations.ai/prompt/car,${c.make},${c.model}|" alt="Coche">
+                    </div>
+                    <div class="card-content">
+                        <h3 th:text="${c.make + ' ' + c.model}">Modelo</h3>
+                        <p>Año Ref: <span th:text="${c.year}"></span></p>
 
-    <div th:if="${resultadosApi != null}">
-        <h2 style="color: #3498db;">Sugerencias de la API</h2>
+                        <a th:href="${'[shutterstock.com](https://www.shutterstock.com/es/search/)' + c.make + '-' + c.model}"
+                            target="_blank" class="btn-shutterstock">
+                            📸 Ver fotos en Shutterstock
+                        </a>
+
+                        <div sec:authorize="hasRole('ADMIN')">
+                            <form th:action="@{/vehiculos/importar}" method="post">
+                                <input type="hidden" name="marca" th:value="${c.make}">
+                                <input type="hidden" name="modelo" th:value="${c.model}">
+                                <input type="hidden" name="anio" th:value="${c.year}">
+                                <button type="submit" class="btn-import">📥 Registrar Stock</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr style="margin: 40px 0; border: 1px solid #eee;">
+        </div>
+
+        <h2>Nuestro Stock en Concesionario</h2>
         <div class="vehiculos-grid">
-            <div th:each="c : ${resultadosApi}" class="card card-external">
-                <span class="external-badge">NHTSA DATA</span>
-                <div class="card-image">
-                    <img th:src="|https://source.unsplash.com/300x200/?car,${c.make},${c.model}|" alt="Coche">                </div>
-                <div class="card-content">
-                    <h3 th:text="${c.make + ' ' + c.model}">Modelo</h3>
-                    <p>Año Ref: <span th:text="${c.year}"></span></p>
+            <div th:each="v : ${vehiculos}" class="card card-external">
 
-                    <a th:href="${'[shutterstock.com](https://www.shutterstock.com/es/search/)' + c.make + '-' + c.model}" 
-                       target="_blank" class="btn-shutterstock">
-                        📸 Ver fotos en Shutterstock
-                    </a>
-                    
-                    <div sec:authorize="hasRole('ADMIN')">
-                        <form th:action="@{/vehiculos/importar}" method="post">
-                            <input type="hidden" name="marca" th:value="${c.make}">
-                            <input type="hidden" name="modelo" th:value="${c.model}">
-                            <input type="hidden" name="anio" th:value="${c.year}">
-                            <button type="submit" class="btn-import">📥 Registrar Stock</button>
-                        </form>
+                <span class="external-badge" style="background: #27ae60;">STOCK LOCAL</span>
+
+                <div class="card-image">
+                    <img th:src="${(v.imagenUrl != null && !v.imagenUrl.isEmpty()) 
+                  ? v.imagenUrl 
+                  : 'https://image.pollinations.ai/prompt/car,' + v.marca + ',' + v.modelo}" alt="Vehículo">
+                </div>
+
+                <div class="card-content">
+                    <h3 th:text="${v.marca + ' ' + v.modelo}">Modelo</h3>
+
+                    <span class="tag"
+                        th:classappend="${v.estado.name().toLowerCase() == 'libre' ? 'tag-libre' : (v.estado.name().toLowerCase() == 'alquilado' ? 'tag-alquilado' : 'tag-vendido')}"
+                        th:text="${v.estado}">
+                        Estado
+                    </span>
+
+                    <p style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;" th:text="${v.precio + ' €'}"></p>
+
+                    <div sec:authorize="hasRole('CLIENTE')">
+                        <div th:if="${v.estado.name().toLowerCase() == 'libre'}" class="btn-group"
+                            style="display: flex; gap: 5px;">
+                            <form th:action="@{/vehiculos/comprar/{id}(id=${v.id})}" method="post" style="flex:1;">
+                                <button type="submit" class="btn-comprar" style="width:100%;">Comprar</button>
+                            </form>
+                            <a th:href="@{/vehiculos/alquilar/{id}(id=${v.id})}" class="btn-edit"
+                                style="flex:1; text-align:center;">Alquilar</a>
+                        </div>
+                        <a th:href="@{/vehiculos/detalles/{id}(id=${v.id})}" class="btn-edit"
+                            style="display:block; margin-top:5px; background-color: #2ecc71; text-align:center;">
+                            📄 Ver Ficha Técnica
+                        </a>
+                        <p th:unless="${v.estado.name().toLowerCase() == 'libre'}" class="text-muted"
+                            style="margin-top:10px;">No disponible actualmente</p>
+                    </div>
+
+                    <div sec:authorize="hasRole('ADMIN')" class="admin-actions"
+                        style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
+                        <a th:href="@{/vehiculos/editar/{id}(id=${v.id})}" class="btn-edit">Editar</a>
+                        <a th:href="@{/vehiculos/eliminar/{id}(id=${v.id})}" class="btn-delete"
+                            onclick="return confirm('¿Eliminar registro?');">Eliminar</a>
                     </div>
                 </div>
             </div>
         </div>
-        <hr style="margin: 40px 0; border: 1px solid #eee;">
     </div>
-
-    <h2>Nuestro Stock en Concesionario</h2>
-<div class="vehiculos-grid">
-    <div th:each="v : ${vehiculos}" class="card card-external">
-        
-        <span class="external-badge" style="background: #27ae60;">STOCK LOCAL</span>
-
-        <div class="card-image">
-    <img th:src="${(v.imagenUrl != null && !v.imagenUrl.isEmpty()) 
-                  ? v.imagenUrl 
-                  : 'https://source.unsplash.com/300x200/?car,' + v.marca + ',' + v.modelo}" 
-         alt="Vehículo">
-</div>
-        
-        <div class="card-content">
-            <h3 th:text="${v.marca + ' ' + v.modelo}">Modelo</h3>
-            
-            <span class="tag"
-                  th:classappend="${v.estado.name().toLowerCase() == 'libre' ? 'tag-libre' : (v.estado.name().toLowerCase() == 'alquilado' ? 'tag-alquilado' : 'tag-vendido')}"
-                  th:text="${v.estado}">
-                Estado
-            </span>
-
-            <p style="font-weight: bold; font-size: 1.2rem; margin: 10px 0;" th:text="${v.precio + ' €'}"></p>
-
-            <div sec:authorize="hasRole('CLIENTE')">
-                <div th:if="${v.estado.name().toLowerCase() == 'libre'}" class="btn-group" style="display: flex; gap: 5px;">
-                    <form th:action="@{/vehiculos/comprar/{id}(id=${v.id})}" method="post" style="flex:1;">
-                        <button type="submit" class="btn-comprar" style="width:100%;">Comprar</button>
-                    </form>
-                    <a th:href="@{/vehiculos/alquilar/{id}(id=${v.id})}" class="btn-edit" style="flex:1; text-align:center;">Alquilar</a>
-                </div>
-                <a th:href="@{/vehiculos/detalles/{id}(id=${v.id})}" class="btn-edit" 
-                   style="display:block; margin-top:5px; background-color: #2ecc71; text-align:center;">
-                   📄 Ver Ficha Técnica
-                </a>
-                <p th:unless="${v.estado.name().toLowerCase() == 'libre'}" class="text-muted" style="margin-top:10px;">No disponible actualmente</p>
-            </div>
-
-            <div sec:authorize="hasRole('ADMIN')" class="admin-actions" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;">
-                <a th:href="@{/vehiculos/editar/{id}(id=${v.id})}" class="btn-edit">Editar</a>
-                <a th:href="@{/vehiculos/eliminar/{id}(id=${v.id})}" class="btn-delete" 
-                   onclick="return confirm('¿Eliminar registro?');">Eliminar</a>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
 </body>
+
 </html>
