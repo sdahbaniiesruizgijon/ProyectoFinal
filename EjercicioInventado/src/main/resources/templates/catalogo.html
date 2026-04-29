@@ -38,7 +38,7 @@
             <div th:each="c : ${resultadosApi}" class="card card-external">
                 <span class="external-badge">NHTSA DATA</span>
                 <div class="card-image">
-                    <img th:src="|https://loremflickr.com/300/200/car,${c.make},${c.model}|" alt="Coche">                </div>
+                    <img th:src="|https://source.unsplash.com/300x200/?car,${c.make},${c.model}|" alt="Coche">                </div>
                 <div class="card-content">
                     <h3 th:text="${c.make + ' ' + c.model}">Modelo</h3>
                     <p>Año Ref: <span th:text="${c.year}"></span></p>
@@ -71,7 +71,7 @@
         <div class="card-image">
     <img th:src="${(v.imagenUrl != null && !v.imagenUrl.isEmpty()) 
                   ? v.imagenUrl 
-                  : '[loremflickr.com](https://loremflickr.com/300/200/car)' + v.marca + ',' + v.modelo + '/all'}" 
+                  : 'https://source.unsplash.com/300x200/?car,' + v.marca + ',' + v.modelo}" 
          alt="Vehículo">
 </div>
         
