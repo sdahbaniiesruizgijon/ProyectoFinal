@@ -43,7 +43,7 @@
                 <div th:each="c : ${resultadosApi}" class="card card-external">
                     <span class="external-badge">NHTSA DATA</span>
                     <div class="card-image">
-                        <img th:src="|https://image.pollinations.ai/prompt/car,${c.make},${c.model}|" alt="Coche">
+                        <img th:src="|https://loremflickr.com/300/200/car,${c.make},${c.model}|" alt="Coche">
                     </div>
                     <div class="card-content">
                         <h3 th:text="${c.make + ' ' + c.model}">Modelo</h3>
@@ -77,7 +77,7 @@
                 <div class="card-image">
                     <img th:src="${(v.imagenUrl != null && !v.imagenUrl.isEmpty()) 
                   ? v.imagenUrl 
-                  : 'https://image.pollinations.ai/prompt/car,' + v.marca + ',' + v.modelo}" alt="Vehículo">
+                  : 'https://loremflickr.com/300/200/car,' + v.marca + ',' + v.modelo}" alt="Vehículo">
                 </div>
 
                 <div class="card-content">

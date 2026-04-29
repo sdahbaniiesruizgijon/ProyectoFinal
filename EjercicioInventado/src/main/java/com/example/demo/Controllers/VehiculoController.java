@@ -63,7 +63,7 @@ public class VehiculoController {
         nuevo.setPrecio(15000.0);
         nuevo.setEstado(Estado.libre);
         
-       String fotoDefault = "https://image.pollinations.ai/prompt/car," + marca.toLowerCase() + "," + modelo.toLowerCase();
+       String fotoDefault = "https://loremflickr.com/300/200/car," + marca.toLowerCase() + "," + modelo.toLowerCase();
         nuevo.setImagenUrl(fotoDefault);
         
         vehiculoServicio.guardar(nuevo);
@@ -170,7 +170,7 @@ public class VehiculoController {
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ADMIN')")
     public String guardarNuevo(@ModelAttribute Vehiculo vehiculo) {
         if (vehiculo.getImagenUrl() == null || vehiculo.getImagenUrl().trim().isEmpty()) {
-            vehiculo.setImagenUrl("https://image.pollinations.ai/prompt/car," 
+            vehiculo.setImagenUrl("https://loremflickr.com/300/200/car," 
                       + vehiculo.getMarca().toLowerCase() + "," 
                       + vehiculo.getModelo().toLowerCase());
         }
@@ -194,7 +194,7 @@ public class VehiculoController {
     @PreAuthorize("hasRole('ADMIN')")
     public String actualizarVehiculo(@ModelAttribute Vehiculo vehiculo) {
         if (vehiculo.getImagenUrl() == null || vehiculo.getImagenUrl().trim().isEmpty()) {
-            vehiculo.setImagenUrl("https://image.pollinations.ai/prompt/car," 
+            vehiculo.setImagenUrl("https://loremflickr.com/300/200/car," 
                       + vehiculo.getMarca().toLowerCase() + "," 
                       + vehiculo.getModelo().toLowerCase());
         }
