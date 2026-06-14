@@ -72,7 +72,7 @@
                     <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i> Lo sentimos, no quedan vehículos libres para el rango de fechas seleccionado. Intente con otras fechas.
                 </div>
             <?php else: ?>
-                <div class="row row-cols-1 row-cols-md-2 col-lg-3 g-4">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                     <?php foreach ($vehiculosDisponibles as $coche): ?>
                         <div class="col">
                             <div class="card h-100 shadow-sm border-0 rounded-custom p-3 bg-white" style="transition: transform 0.2s;">
