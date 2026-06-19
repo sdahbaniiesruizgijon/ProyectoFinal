@@ -9,7 +9,7 @@ $fecha_inicio = '';
 $fecha_fin = '';
 
 // Si el usuario rellena el formulario de la opción de menú "Reservar" y pulsa "Buscar"
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'buscar') {
+if (isset($_POST['action']) && $_POST['action'] === 'buscar') {
     $fecha_inicio = $_POST['fecha_inicio'];
     $fecha_fin = $_POST['fecha_fin'];
 

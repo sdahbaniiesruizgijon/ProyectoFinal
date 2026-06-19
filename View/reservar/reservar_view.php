@@ -120,12 +120,16 @@
             const fFin = document.getElementById('fecha_fin');
 
             const hoy = new Date().toISOString().split('T')[0];
+            console.log("Fecha Inicio " + hoy);
             fInicio.min = hoy;
+            console.log("Fecha Inicio " + fInicio.min);
 
             const hoyObj = new Date();
             const maxInicioObj = new Date();
             maxInicioObj.setMonth(hoyObj.getMonth() + 10);
+            console.log("Segundos" + maxInicioObj.setMonth(hoyObj.getMonth() + 10));
             fInicio.max = maxInicioObj.toISOString().split('T')[0];
+            console.log("Fecha fin " + fInicio.max);
         });
 
         function validarFechas() {
